@@ -1,38 +1,57 @@
 package main
 
 import (
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"log"
+	"fmt"
+	"os"
+	"os/exec"
+	"time"
 )
 
-// Game репрезентує стан гри.
-type Game struct{}
-
-// Update оновлює стан гри. Це викликається кожен кадр (типово 1/60 секунди).
-func (g *Game) Update() error {
-	// Вихід з гри при натисканні клавіші Q.
-	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
-		return ebiten.ErrRegularTermination
+// Функція для очищення консолі
+func clearScreen() {
+	cmd := exec.Command("clear")  // для UNIX/Linux/Mac
+	if os.PathSeparator == '\\' { // Windows
+		cmd = exec.Command("cmd", "/c", "cls")
 	}
-	return nil
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
 
-// Draw рендерить екран гри.
-func (g *Game) Draw(screen *ebiten.Image) {
-	ebitenutil.DebugPrint(screen, "Натисніть Q для виходу")
-}
+// Функція для відображення світлофора
+func displayLight(color string) {
+	clearScreen()
 
-// Layout обробляє розмір вікна гри.
-func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return 320, 240
+	if color == "red" {
+		fmt.Println("\x1b[41m     \x1b[0m\n\x1b[41m     \x1b[0m")
+	} else {
+		fmt.Println("\x1b[40m     \x1b[0m\n\x1b[40m     \x1b[0m")
+	}
+
+	if color == "yellow" {
+		fmt.Println("\x1b[43m     \x1b[0m\n\x1b[43m     \x1b[0m")
+	} else {
+		fmt.Println("\x1b[40m     \x1b[0m\n\x1b[40m     \x1b[0m")
+	}
+
+	if color == "green" {
+		fmt.Println("\x1b[42m     \x1b[0m\n\x1b[42m     \x1b[0m")
+	} else {
+		fmt.Println("\x1b[40m     \x1b[0m\n\x1b[40m     \x1b[0m")
+	}
 }
 
 func main() {
-	game := &Game{}
-	ebiten.SetWindowSize(640, 480)
-	ebiten.SetWindowTitle("Проста гра на Go")
-	if err := ebiten.RunGame(game); err != nil && err != ebiten.ErrRegularTermination {
-		log.Fatal(err)
+	for {
+		// Червоний світло
+		displayLight("red")
+		time.Sleep(5 * time.Second)
+
+		// Жовтий світло
+		displayLight("yellow")
+		time.Sleep(2 * time.Second)
+
+		// Зелений світло
+		displayLight("green")
+		time.Sleep(5 * time.Second)
 	}
 }
